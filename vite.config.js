@@ -13,6 +13,7 @@ export default defineConfig({
       strategies: "injectManifest",
       injectRegister: "auto",
       workbox: {
+        // pattern
         globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
       },
     }),
