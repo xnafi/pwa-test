@@ -7,14 +7,15 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      manifest: manifestForPlugIn,
+      strategies: "injectManifest",
       srcDir: "src",
       filename: "sw.js",
-      strategies: "injectManifest",
       injectRegister: "auto",
+      injectManifest: {
+        swSrc: "src/sw.js",
+        swDest: "dist/sw.js",
+      },
+      manifest: manifestForPlugIn,
     }),
   ],
-  build: {
-    outDir: "dist",
-  },
 });
