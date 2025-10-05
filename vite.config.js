@@ -16,6 +16,9 @@ export default defineConfig({
         swDest: "dist/sw.js",
       },
       manifest: manifestForPlugIn,
+      devOptions: {
+        enabled: true, // allow testing PWA in dev mode
+      },
     }),
   ],
 });
