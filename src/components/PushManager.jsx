@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const PUBLIC_VAPID_KEY =
   "BMHeikDEHP9kLglXCqPv-nnptecq2Gtu6w5FG2_i-rMMkHD8UxuwSY6kP9i3K-O-pX3b_NMGEPmSAwPftRSrzlw";
@@ -6,50 +6,75 @@ const PUBLIC_VAPID_KEY =
 export default function PushManager() {
   const [isSubscribed, setIsSubscribed] = useState(false);
 
+  useEffect(() => {
+    // Check if the user is already subscribed
+    if ("serviceWorker" in navigator && "PushManager" in window) {
+      navigator.serviceWorker.ready.then(async (registration) => {
+        const subscription = await registration.pushManager.getSubscription();
+        if (subscription) setIsSubscribed(true);
+      });
+    }
+  }, []);
+
   async function subscribe() {
-    // Step 1: Ask user permission
-    const permission = await Notification.requestPermission();
-    if (permission !== "granted") {
-      alert("Notification permission denied ❌");
+    if (!("serviceWorker" in navigator && "PushManager" in window)) {
+      alert("❌ Push notifications are not supported in this browser.");
       return;
     }
 
-    // Step 2: Wait until service worker is ready
-    const registration = await navigator.serviceWorker.ready;
+    // Step 1: Request notification permission
+    const permission = await Notification.requestPermission();
+    if (permission !== "granted") {
+      alert("❌ Notification permission denied");
+      return;
+    }
 
-    // Step 3: Subscribe user
-    const subscription = await registration.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(PUBLIC_VAPID_KEY),
-    });
+    try {
+      // Step 2: Wait for service worker registration
+      const registration = await navigator.serviceWorker.ready;
 
-    // Step 4: Save subscription to backend
-    await fetch("http://localhost:3000/api/save-subscription", {
-      method: "POST",
-      body: JSON.stringify(subscription),
-      headers: { "Content-Type": "application/json" },
-    });
+      // Step 3: Subscribe user
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(PUBLIC_VAPID_KEY),
+      });
 
-    setIsSubscribed(true);
+      // Step 4: Send subscription to backend
+      const response = await fetch(
+        "http://localhost:3000/api/save-subscription",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(subscription),
+        }
+      );
+
+      if (!response.ok) throw new Error("Failed to save subscription");
+
+      setIsSubscribed(true);
+      alert("✅ Notifications enabled!");
+    } catch (err) {
+      console.error("Subscription error:", err);
+      alert("❌ Failed to subscribe for notifications");
+    }
   }
 
   return (
-    <button className="!bg-blue-500 text-2xl" onClick={subscribe} disabled={isSubscribed}>
+    <button
+      className="!bg-blue-500 text-white text-2xl px-6 py-3 rounded-lg"
+      onClick={subscribe}
+      disabled={isSubscribed}
+    >
       {isSubscribed ? "✅ Notifications Enabled" : "🔔 Enable Notifications"}
     </button>
   );
 }
 
-// helper
+// Helper to convert VAPID key
 function urlBase64ToUint8Array(base64String) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
 
   const rawData = atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
-
-  for (let i = 0; i < rawData.length; ++i) {
-    outputArray[i] = rawData.charCodeAt(i);
-  }
-  return outputArray;
+  return Uint8Array.from([...rawData].map((c) => c.charCodeAt(0)));
 }
