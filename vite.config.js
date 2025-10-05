@@ -16,6 +16,16 @@ export default defineConfig({
         swDest: "dist/sw.js",
       },
       manifest: manifestForPlugIn,
+      build: {
+        rollupOptions: {
+          external: [
+            "workbox-precaching",
+            "workbox-routing",
+            "workbox-strategies",
+          ],
+        },
+      },
+
       devOptions: {
         enabled: true, // allow testing PWA in dev mode
       },
