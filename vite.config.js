@@ -7,27 +7,13 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      strategies: "injectManifest",
+      manifest: manifestForPlugIn,
       srcDir: "src",
       filename: "sw.js",
+      strategies: "injectManifest",
       injectRegister: "auto",
-      injectManifest: {
-        swSrc: "src/sw.js",
-        swDest: "dist/sw.js",
-      },
-      manifest: manifestForPlugIn,
-      build: {
-        rollupOptions: {
-          external: [
-            "workbox-precaching",
-            "workbox-routing",
-            "workbox-strategies",
-          ],
-        },
-      },
-
-      devOptions: {
-        enabled: true, // allow testing PWA in dev mode
+      workbox: {
+        globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
       },
     }),
   ],

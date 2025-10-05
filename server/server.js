@@ -54,7 +54,7 @@ setInterval(async () => {
 
   await Promise.all(sendPromises);
   console.log("🕒 Sent periodic notifications:", message);
-}, 60 * 1000); // every 1 minute
+}, 10 * 1000); // every 1 minute
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Push server running at http://localhost:${PORT}`));
