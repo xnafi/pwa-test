@@ -8,16 +8,16 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
-    VitePWA({
-      manifest: manifestForPlugIn,
-      srcDir: "src",
-      filename: "sw.js",
-      strategies: "injectManifest",
-      injectRegister: "auto",
-      workbox: {
-        globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
-      },
-    }),
+    // VitePWA({
+    //   manifest: manifestForPlugIn,
+    //   srcDir: "src",
+    //   filename: "sw.js",
+    //   strategies: "injectManifest",
+    //   injectRegister: "auto",
+    //   workbox: {
+    //     globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
+    //   },
+    // }),
   ],
   build: {
     rollupOptions: {

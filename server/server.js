@@ -7,15 +7,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
-
-// ✅ Enable CORS for all routes
-app.use(
-  cors({
-    origin: ["http://localhost:5173", "https://pwa-test-five-phi.vercel.app"], 
-    methods: ["GET", "POST", "OPTIONS"],
-    allowedHeaders: ["Content-Type"],
-  })
-);
+app.use(cors());
 app.use(bodyParser.json());
 
 // ✅ VAPID keys
