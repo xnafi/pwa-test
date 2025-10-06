@@ -7,65 +7,61 @@ export default function PushManager() {
   const [isSubscribed, setIsSubscribed] = useState(false);
 
   useEffect(() => {
-    // Check if the user is already subscribed
-    if ("serviceWorker" in navigator && "PushManager" in window) {
-      navigator.serviceWorker.ready.then(async (registration) => {
-        const subscription = await registration.pushManager.getSubscription();
-        if (subscription) setIsSubscribed(true);
-      });
-    }
-  }, []);
+    // Check if browser supports push notifications
+    if (!("serviceWorker" in navigator && "PushManager" in window)) return;
 
-  async function subscribe() {
-    if (!("serviceWorker" in navigator && "PushManager" in window)) {
-      alert("❌ Push notifications are not supported in this browser.");
-      return;
-    }
+    async function initPush() {
+      try {
+        // Step 1: Register or get existing service worker
+        const registration = await navigator.serviceWorker.ready;
 
-    // Step 1: Request notification permission
-    const permission = await Notification.requestPermission();
-    if (permission !== "granted") {
-      alert("❌ Notification permission denied");
-      return;
-    }
-
-    try {
-      // Step 2: Wait for service worker registration
-      const registration = await navigator.serviceWorker.ready;
-
-      // Step 3: Subscribe user
-      const subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(PUBLIC_VAPID_KEY),
-      });
-
-      // Step 4: Send subscription to backend
-      const response = await fetch(
-        "http://localhost:3000/api/save-subscription",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(subscription),
+        // Step 2: Check existing subscription
+        const existingSub = await registration.pushManager.getSubscription();
+        if (existingSub) {
+          setIsSubscribed(true);
+          return; // Already subscribed
         }
-      );
 
-      if (!response.ok) throw new Error("Failed to save subscription");
+        // Step 3: Request permission automatically
+        const permission = await Notification.requestPermission();
+        if (permission !== "granted") {
+          console.log("❌ Notification permission denied");
+          return;
+        }
 
-      setIsSubscribed(true);
-      alert("✅ Notifications enabled!");
-    } catch (err) {
-      console.error("Subscription error:", err);
-      alert("❌ Failed to subscribe for notifications");
+        // Step 4: Subscribe user
+        const subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(PUBLIC_VAPID_KEY),
+        });
+
+        // Step 5: Send subscription to backend
+        const response = await fetch(
+          "http://localhost:3000/api/save-subscription",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(subscription),
+          }
+        );
+
+        if (!response.ok) throw new Error("Failed to save subscription");
+
+        setIsSubscribed(true);
+      } catch (err) {
+        console.error("Push subscription error:", err);
+      }
     }
-  }
+
+    initPush();
+  }, []);
 
   return (
     <button
       className="!bg-blue-500 text-white text-2xl px-6 py-3 rounded-lg"
-      onClick={subscribe}
       disabled={isSubscribed}
     >
-      {isSubscribed ? "✅ Notifications Enabled" : "🔔 Enable Notifications"}
+      {isSubscribed ? "✅ Notifications Enabled" : "🔔 Notifications Pending"}
     </button>
   );
 }

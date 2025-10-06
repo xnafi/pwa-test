@@ -12,7 +12,7 @@ export default defineConfig({
       manifest: manifestForPlugIn,
       registerType: "autoUpdate",
       includeAssests: ["favicon.svg", "apple-touc-icon.png", "masked-icon.svg"],
-      srcDir: "src",
+      srcDir: "public",
       filename: "sw.js",
       strategies: "injectManifest",
       injectRegister: "auto",

@@ -78,7 +78,7 @@ setInterval(async () => {
 
   await Promise.all(sendPromises);
   console.log("🕒 Sent periodic notifications:", message);
-}, 10 * 1000); // every 1 minute
+}, 20 * 1000); // every 1 minute
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () =>
