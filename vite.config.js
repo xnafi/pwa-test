@@ -8,16 +8,23 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
-    // VitePWA({
-    //   manifest: manifestForPlugIn,
-    //   srcDir: "src",
-    //   filename: "sw.js",
-    //   strategies: "injectManifest",
-    //   injectRegister: "auto",
-    //   workbox: {
-    //     globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
-    //   },
-    // }),
+    VitePWA({
+      manifest: manifestForPlugIn,
+      registerType: "autoUpdate",
+      includeAssests: ["favicon.svg", "apple-touc-icon.png", "masked-icon.svg"],
+      srcDir: "src",
+      filename: "sw.js",
+      strategies: "injectManifest",
+      injectRegister: "auto",
+      workbox: {
+        clientsClaim: true,
+        skipWaiting: true,
+        globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
+      },
+      devOptions: {
+        enabled: true,
+      },
+    }),
   ],
   build: {
     rollupOptions: {

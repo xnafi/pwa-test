@@ -1,6 +1,4 @@
 export const manifestForPlugIn = {
-  registerType: "prompt",
-  includeAssests: ["favicon.svg", "apple-touc-icon.png", "masked-icon.svg"],
   manifest: {
     name: "React-vite-app",
     short_name: "react-vite-app",
