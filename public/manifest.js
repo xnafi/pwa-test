@@ -9,17 +9,17 @@ export const manifestForPlugIn = {
     theme_color: "#000000",
     icons: [
       {
-        src: "/apple.png",
+        src: "apple.png",
         sizes: "192x192",
         type: "image/png",
       },
       {
-        src: "/android.png",
+        src: "android.png",
         sizes: "512x512",
         type: "image/png",
       },
       {
-        src: "/maskable.png",
+        src: "maskable.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "maskable",
