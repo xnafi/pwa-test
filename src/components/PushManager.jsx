@@ -6,6 +6,8 @@ const PUBLIC_VAPID_KEY =
 export default function PushManager() {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [showIosBanner, setShowIosBanner] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [showInstallModal, setShowInstallModal] = useState(false);
 
   useEffect(() => {
     const ua = window.navigator.userAgent;
@@ -17,11 +19,28 @@ export default function PushManager() {
       window.navigator.standalone === true;
 
     if (isIos && !isInStandaloneMode) {
-      // iOS browser, not installed: show banner
       setShowIosBanner(true);
       return;
     }
 
+    // ✅ Listen for Android install prompt
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+
+      // Show modal automatically after 5s
+      setTimeout(() => {
+        setShowInstallModal(true);
+      }, 5000);
+    });
+
+    // ✅ Log when installed
+    window.addEventListener("appinstalled", () => {
+      console.log("✅ PWA installed successfully!");
+      setShowInstallModal(false);
+    });
+
+    // ✅ Push Notification setup
     if (!("serviceWorker" in navigator && "PushManager" in window)) return;
 
     async function subscribeUser() {
@@ -60,12 +79,24 @@ export default function PushManager() {
     subscribeUser();
   }, []);
 
+  // ✅ Handle Install click
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log("Install outcome:", outcome);
+    setDeferredPrompt(null);
+    setShowInstallModal(false);
+  };
+
   return (
-    <div className="flex flex-col items-center gap-2">
-      {/* Status Button (Android/Desktop) */}
+    <div className="flex flex-col items-center gap-3 text-center">
+      {/* 🔔 Notifications Button */}
       {!showIosBanner && (
         <button
-          className="!bg-blue-500 text-white text-2xl px-6 py-3 rounded-lg"
+          className={`text-white text-2xl px-6 py-3 rounded-lg ${
+            isSubscribed ? "bg-gray-500" : "bg-blue-500"
+          }`}
           disabled={isSubscribed}
         >
           {isSubscribed
@@ -74,11 +105,37 @@ export default function PushManager() {
         </button>
       )}
 
-      {/* iOS Banner */}
+      {/* 🍎 iOS Banner */}
       {showIosBanner && (
         <div className="bg-yellow-100 text-yellow-800 border border-yellow-300 px-4 py-3 rounded-lg text-center max-w-md">
           ⚠️ To receive push notifications on iOS, please add this app to your
           Home Screen: Tap "Share" → "Add to Home Screen".
+        </div>
+      )}
+
+      {/* 📲 Install Modal */}
+      {showInstallModal && (
+        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+          <div className="bg-white rounded-2xl shadow-lg p-6 w-80 text-center">
+            <h2 className="text-2xl font-semibold mb-2">Install App</h2>
+            <p className="text-gray-600 mb-4">
+              Get quick access by installing this app on your device.
+            </p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={handleInstallClick}
+                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg"
+              >
+                Install
+              </button>
+              <button
+                onClick={() => setShowInstallModal(false)}
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-lg"
+              >
+                Later
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

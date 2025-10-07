@@ -3,6 +3,12 @@ export const manifestForPlugIn = {
     name: "React-vite-app",
     short_name: "react-vite-app",
     description: "I am a simple vite app",
+    theme_color: "#171717",
+    background_color: "#f0e7db",
+    display: "standalone",
+    scope: "/",
+    start_url: "/",
+    orientation: "portrait",
     icons: [
       {
         src: "/favicon.svg",
@@ -17,23 +23,17 @@ export const manifestForPlugIn = {
         purpose: "favicon",
       },
       {
-        src: "/favicon.svg",
+        src: "/apple.png",
         sizes: "180x180",
         type: "image/png",
         purpose: "apple touch icon",
       },
       {
-        src: "/favicon.svg",
+        src: "/android.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "any maskable",
       },
     ],
-    theme_color: "#171717",
-    background_color: "#f0e7db",
-    display: "standalone",
-    scope: "/",
-    start_url: "/",
-    orientation: "portrait",
   },
 };
