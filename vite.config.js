@@ -11,9 +11,14 @@ export default defineConfig({
     VitePWA({
       manifest: manifestForPlugIn,
       registerType: "autoUpdate",
-      includeAssests: ["favicon.svg","android", "apple.png", "maskable.png"],
+      includeAssests: [
+        "favicon.svg",
+        "apple.png",
+        "android.png",
+        "maskable.png",
+      ],
       srcDir: "public",
-      filename: "service-worker.js",
+      filename: "sw.js",
       strategies: "injectManifest",
       injectRegister: "auto",
       workbox: {
@@ -26,4 +31,9 @@ export default defineConfig({
       },
     }),
   ],
+  build: {
+    rollupOptions: {
+      external: [],
+    },
+  },
 });
